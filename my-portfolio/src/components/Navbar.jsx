@@ -10,11 +10,29 @@ const links = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [percent, setPercent] = useState(0);
+  const [statusTag, setStatusTag] = useState("ONLINE");
+  const [statusColor, setStatusColor] = useState("var(--muted)");
+
   const { scrollYProgress } = useScroll(); // whole-page progress, 0 to 1
 
-  // Only updates React state when the rounded number actually changes
+  // Updates state, status tags, and readout colors based on scroll depth
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setPercent(Math.round(v * 100));
+    const p = Math.round(v * 100);
+    setPercent(p);
+
+    if (p < 30) {
+      setStatusTag("ONLINE");
+      setStatusColor("var(--muted)");
+    } else if (p < 70) {
+      setStatusTag("STABLE");
+      setStatusColor("var(--bone)");
+    } else if (p < 95) {
+      setStatusTag("WARP");
+      setStatusColor("var(--ember)");
+    } else {
+      setStatusTag("CRITICAL");
+      setStatusColor("#ff3333");
+    }
   });
 
   return (
@@ -23,7 +41,6 @@ export default function Navbar() {
         <a href="#home" className="logo" aria-label="Back to top">
           YN
         </a>
-
         <ul className={`nav-links ${open ? "open" : ""}`}>
           {links.map((link) => (
             <li key={link.href}>
@@ -34,10 +51,12 @@ export default function Navbar() {
             </li>
           ))}
         </ul>
-
         <div className="nav-right">
-          <span className="label scroll-readout">
-            Scroll {String(percent).padStart(3, "0")}%
+          <span
+            className="label scroll-readout"
+            style={{ color: statusColor, transition: "color 0.3s ease" }}
+          >
+            SYS:// {String(percent).padStart(3, "0")}% [{statusTag}]
           </span>
           <button
             className="menu-btn"
@@ -49,7 +68,6 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
-
       <motion.div
         className="progress-bar"
         style={{ scaleX: scrollYProgress }}

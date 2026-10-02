@@ -1,4 +1,6 @@
+import { useState } from "react";
 import BlackHole from "./components/BlackHole";
+import BlackHoleControls from "./components/BlackHoleControls";
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import About from "./components/About";
@@ -7,7 +9,6 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import PatternBackground from "./components/PatternBackground";
 
-// Invisible SVG that defines the pointed-arch shape used by .arch in the CSS
 function ArchDefs() {
   return (
     <svg
@@ -27,11 +28,22 @@ function ArchDefs() {
 }
 
 export default function App() {
+  const [bhSettings, setBhSettings] = useState({
+    speed: 1,
+    glow: 1,
+    trailFactor: 1,
+  });
+
+  const handleSettingChange = (key, value) => {
+    setBhSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
   return (
     <>
       <ArchDefs />
       <PatternBackground />
-      <BlackHole />
+      <BlackHole {...bhSettings} />
+      <BlackHoleControls settings={bhSettings} onChange={handleSettingChange} />
       <Navbar />
       <main>
         <Hero />

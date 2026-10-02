@@ -1,6 +1,8 @@
 import { useState } from "react";
 import projects from "../data/projects";
 import ProjectCard from "./ProjectCard";
+import RoseWindow from "./RoseWindow";
+import designThree from "../assets/design-3.png";
 
 const categories = ["All", ...new Set(projects.map((p) => p.category))];
 
@@ -14,6 +16,28 @@ export default function Projects() {
 
   return (
     <section id="projects" className="section">
+      <RoseWindow
+        src={designThree}
+        style={{
+          top: "30%",
+          right: "-15%",
+          left: "auto",
+          width: "600px",
+          opacity: 1,
+        }}
+      />
+
+      <RoseWindow
+        src={designThree}
+        style={{
+          top: "70%",
+          right: "auto",
+          left: "-5%",
+          width: "350px",
+          opacity: 0.5,
+        }}
+      />
+
       <div className="container">
         <p className="label">02 / Projects</p>
         <h2 className="section-title">

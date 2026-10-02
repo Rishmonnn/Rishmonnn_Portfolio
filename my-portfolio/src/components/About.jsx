@@ -1,6 +1,9 @@
 import useReveal from "../hooks/useReveal";
 import RoseWindow from "./RoseWindow";
 
+import designOne from "../assets/design-1.png";
+import designTwo from "../assets/design-2.png";
+
 const skills = [
   "C / C++",
   "Python",
@@ -17,12 +20,23 @@ export default function About() {
 
   return (
     <section id="about" className="section">
-      <RoseWindow />
+      <RoseWindow src={designOne} />
       <div className="container reveal" ref={ref}>
         <p className="label">01 / About</p>
         <h2 className="section-title">
           About <em>me</em>
         </h2>
+
+        <RoseWindow
+          src={designTwo}
+          style={{
+            top: "10%",
+            right: "auto",
+            left: "-5%",
+            width: "500px",
+            opacity: 0.3,
+          }}
+        />
 
         <div className="about-grid">
           <div className="about-text">

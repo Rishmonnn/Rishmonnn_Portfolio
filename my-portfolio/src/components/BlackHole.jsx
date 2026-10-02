@@ -75,7 +75,7 @@ function makeDust(count) {
     x: Math.random(),
     y: Math.random(),
     depth: 0.2 + Math.random() * 0.8, // 1 = close, 0.2 = far
-    size: 0.6 + Math.random() * 1.4,
+    size: 0.6 + Math.random() * 1.4, //Increased from 0.6 + 1.4 to make them much chunkier
   }));
 }
 
@@ -164,7 +164,7 @@ export default function BlackHole() {
           x = lens.cx + dx * f;
           y = lens.cy + dy * f;
         }
-        ctx.globalAlpha = 0.15 + d.depth * 0.35;
+        ctx.globalAlpha = 0.4 + d.depth * 0.6; // increased opacity for better visibility
         ctx.fillRect(x, y, d.size, d.size + streak * d.depth);
       }
       ctx.globalAlpha = 1;

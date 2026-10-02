@@ -11,6 +11,8 @@
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
 
   --nav-height: 64px;
+  --pattern-size: 500px; /* size of one pattern tile */
+  --pattern-dim: 0; /* 0 = pattern at full strength, 1 = invisible */
 }
 
 /* ================= BASE ================= */
@@ -50,16 +52,41 @@ ul {
   outline-offset: 3px;
 }
 
-/* Faint vertical grid lines (the Swiss "skeleton") */
-body::before {
-  content: "";
+/* Background pattern: sits behind everything, including the black hole canvas */
+/* Background pattern: sits behind everything, including the black hole canvas */
+.pattern-bg {
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: 0; /* keep at 0. A negative value would hide it behind the page background */
+  overflow: hidden;
   pointer-events: none;
-  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
-  background-size: 16.6667% 100%;
-  opacity: 0.45;
+}
+
+/* The tiled PNG. PatternBackground.jsx moves this layer. */
+.pattern-tiles {
+  position: absolute;
+  inset: 0;
+  background-image: url("./assets/pattern.png");
+  background-size: var(--pattern-size);
+  background-repeat: repeat;
+}
+
+/* Darkening on top of the pattern. This layer stays still. */
+.pattern-shade {
+  position: absolute;
+  inset: 0;
+  background-image:
+    /* soft vignette: darker at the edges, lighter around the black hole */
+    radial-gradient(
+      ellipse at 70% 50%,
+      rgba(10, 10, 12, 0) 0%,
+      rgba(10, 10, 12, 0.55) 100%
+    ),
+    /* flat dark overlay: the main darkness control */
+    linear-gradient(
+        rgba(10, 10, 12, var(--pattern-dim)),
+        rgba(10, 10, 12, var(--pattern-dim))
+      );
 }
 
 /* Page content sits above the fixed canvas (z-index 0) */
@@ -81,6 +108,15 @@ main,
   padding: 8rem 0;
   scroll-margin-top: var(--nav-height);
   overflow-x: clip;
+}
+/* Adds a dedicated dark gradient layer to every individual section */
+.section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: rgba(10, 10, 12, 0.75); /* A uniform, balanced dark overlay */
 }
 .label {
   font-family: var(--font-mono);
@@ -230,6 +266,7 @@ main,
 .hero-runway {
   position: relative;
 }
+
 .hero-stage {
   position: sticky;
   top: 0;
@@ -240,19 +277,6 @@ main,
 }
 .hero-copy {
   max-width: 640px;
-}
-
-.hero-stage::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(
-    90deg,
-    rgba(10, 10, 12, 0.85) 0%,
-    rgba(10, 10, 12, 0.5) 35%,
-    transparent 65%
-  );
 }
 
 .hero-name {
@@ -564,7 +588,7 @@ main,
 .footer {
   padding: 2.5rem 0;
   text-align: center;
-  background: var(--void);
+  background: rgba(10, 10, 12, 0.6);
   border-top: 1px solid var(--line);
   font-family: var(--font-mono);
   font-size: 0.72rem;
@@ -594,15 +618,6 @@ main,
   .hero-stage {
     align-items: flex-end;
     padding-bottom: 14vh;
-  }
-
-  .hero-stage::before {
-    background: linear-gradient(
-      0deg,
-      rgba(10, 10, 12, 0.9) 0%,
-      rgba(10, 10, 12, 0.5) 45%,
-      transparent 75%
-    );
   }
 
   .scroll-readout {

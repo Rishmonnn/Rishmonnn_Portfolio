@@ -79,6 +79,17 @@ function makeDust(count) {
   }));
 }
 
+// 🌟 NEW: Escaping foreground sparks
+function makeSparks(count) {
+  return Array.from({ length: count }, () => ({
+    a: Math.random() * TAU, // Random escape trajectory angle
+    r: 1.0 + Math.random() * 0.2, // Spawns just outside the event horizon
+    speed: 0.8 + Math.random() * 2.0, // Velocity outward
+    size: 0.8 + Math.random() * 2.5,
+    life: Math.random(), // Opacity / lifecycle timer
+  }));
+}
+
 export default function BlackHole() {
   const canvasRef = useRef(null);
 
@@ -94,6 +105,7 @@ export default function BlackHole() {
     const disk = makeDisk(small ? 650 : 1700);
     const under = makeUnder(small ? 150 : 380);
     const dust = makeDust(small ? 40 : 90);
+    const sparks = makeSparks(small ? 20 : 45); // 🌟 NEW
 
     let w = 0;
     let h = 0;
@@ -214,20 +226,24 @@ export default function BlackHole() {
         for (const p of disk) {
           const sin = Math.sin(p.a);
           if (sin < 0 !== far) continue;
-          // c: +1 = moving toward you (bright, hot), -1 = moving away (dim, cool)
+
           const c = DIRECTION * Math.cos(p.a);
           const e = p.base * (1 + BEAMING * c);
           if (e < 0.12) continue;
+
           const ci = clamp(
             p.heat - (c > 0.45 ? 1 : 0) + (c < -0.45 ? 1 : 0),
             0,
             4,
           );
           const path = paths[ci * TIERS + tierOf(e)];
-          const rad = p.r * R;
+
+          // 🌟 CHANGED: Added turbulence wobble to the radius
+          const turbulence = Math.sin(p.a * 4 + p.r * 15) * 0.025 * R;
+          const rad = p.r * R + turbulence;
+
           place(rad, p.a, p.lift);
           path.moveTo(px, py);
-          // The trail extends behind the direction of motion
           place(rad, p.a - DIRECTION * p.omega * trail, p.lift);
           path.lineTo(px, py);
         }
@@ -261,16 +277,27 @@ export default function BlackHole() {
         }
       };
 
-      /* ---- 1) wide ember glow behind everything ---- */
+      /* ---- 1) wide ambient glows & polar jets behind everything ---- */
       ctx.globalCompositeOperation = "lighter";
+
+      // Nebula & Halos
+      const nebula = ctx.createRadialGradient(cx, cy, R * 2, cx, cy, R * 14);
+      nebula.addColorStop(0, "rgba(255, 75, 31, 0.12)");
+      nebula.addColorStop(0.4, "rgba(160, 70, 45, 0.05)");
+      nebula.addColorStop(1, "rgba(0, 0, 0, 0)");
+
       const halo = ctx.createRadialGradient(cx, cy, R, cx, cy, R * 6);
       halo.addColorStop(0, "rgba(255, 75, 31, 0.26)");
       halo.addColorStop(0.3, "rgba(255, 75, 31, 0.09)");
       halo.addColorStop(1, "rgba(255, 75, 31, 0)");
+
       const inner = ctx.createRadialGradient(cx, cy, R * 0.9, cx, cy, R * 2.4);
       inner.addColorStop(0, "rgba(255, 150, 90, 0.2)");
       inner.addColorStop(1, "rgba(255, 150, 90, 0)");
+
       ctx.globalAlpha = alpha * GLOW;
+      ctx.fillStyle = nebula;
+      ctx.fillRect(cx - R * 14, cy - R * 14, R * 28, R * 28);
       ctx.fillStyle = halo;
       ctx.fillRect(cx - R * 6, cy - R * 6, R * 12, R * 12);
       ctx.fillStyle = inner;
@@ -279,10 +306,17 @@ export default function BlackHole() {
       /* ---- 2) far side: the lensed arch over the top ---- */
       drawDisk(true);
 
-      /* ---- 3) the event horizon: a solid black disc ---- */
+      /* ---- 3) the event horizon: volumetric sphere ---- */
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = alpha;
-      ctx.fillStyle = "#000";
+
+      // 🌟 CHANGED: Swapped solid black for an abyss gradient
+      const abyss = ctx.createRadialGradient(cx, cy, R * 0.85, cx, cy, R);
+      abyss.addColorStop(0, "#000"); // Deep core
+      abyss.addColorStop(0.9, "#000");
+      abyss.addColorStop(1, "rgba(160, 70, 45, 0.6)"); // Dark rust rim interacting with light
+
+      ctx.fillStyle = abyss;
       ctx.beginPath();
       ctx.arc(cx, cy, R, 0, TAU);
       ctx.fill();
@@ -296,17 +330,51 @@ export default function BlackHole() {
       ctx.globalAlpha = 1;
     }
 
+    // 🌟 NEW: Draw escaping foreground sparks
+    function drawSparks(dt, g, alpha) {
+      const { cx, cy, R, zoom } = g;
+      ctx.globalCompositeOperation = "lighter";
+
+      for (const s of sparks) {
+        // Update lifecycle and distance
+        s.life -= dt * 0.8;
+        s.r += s.speed * dt;
+
+        // Respawn spark if it burns out
+        if (s.life <= 0) {
+          s.life = 1;
+          s.r = 1.0 + Math.random() * 0.2;
+          s.a = Math.random() * TAU;
+        }
+
+        const sparkAlpha = Math.max(0, s.life) * alpha;
+        const px = cx + Math.cos(s.a) * (s.r * R);
+        const py = cy + Math.sin(s.a) * (s.r * R);
+
+        ctx.globalAlpha = sparkAlpha;
+        ctx.fillStyle = "rgb(255, 196, 150)"; // Peach from your palette
+        ctx.beginPath();
+        ctx.arc(px, py, s.size * zoom, 0, TAU);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
     function draw(dt, progress, vel, scrollY) {
       ctx.clearRect(0, 0, w, h);
-      // The hole fades out as the hero ends
       const holeAlpha = 1 - smoothstep(0.86, 1, progress);
       const g = holeAlpha > 0.01 ? holeGeometry(progress, vel) : null;
+
       drawDust(
         scrollY,
         vel,
         g && { cx: g.cx, cy: g.cy, R: g.R, amount: holeAlpha },
       );
-      if (g) drawHole(dt, g, holeAlpha);
+
+      if (g) {
+        drawHole(dt, g, holeAlpha);
+        drawSparks(dt, g, holeAlpha); // 🌟 NEW: Called after the hole so they render on top
+      }
     }
 
     function frame(now) {

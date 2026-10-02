@@ -5,6 +5,7 @@ import About from "./components/About";
 import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
+import PatternBackground from "./components/PatternBackground";
 
 // Invisible SVG that defines the pointed-arch shape used by .arch in the CSS
 function ArchDefs() {
@@ -29,6 +30,7 @@ export default function App() {
   return (
     <>
       <ArchDefs />
+      <PatternBackground />
       <BlackHole />
       <Navbar />
       <main>

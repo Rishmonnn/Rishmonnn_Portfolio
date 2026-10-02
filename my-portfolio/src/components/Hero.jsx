@@ -6,7 +6,6 @@ export default function Hero() {
   const ref = useRef(null);
 
   // 0 when the hero starts scrolling, 1 when its runway ends.
-  // This matches the "progress" the black hole uses.
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
@@ -16,6 +15,10 @@ export default function Hero() {
   const opacity = useTransform(scrollYProgress, [0, 0.45], [1, 0]);
   const y = useTransform(scrollYProgress, [0, 0.45], [0, -80]);
 
+  // 🌟 NEW: Fades in a heavy cinematic shadow precisely as you "enter" the black hole
+  // Starts fading at 75% scroll, hits full blackout at 100%
+  const abyssDarkness = useTransform(scrollYProgress, [0.75, 1], [0, 1]);
+
   return (
     <section
       id="home"
@@ -24,7 +27,20 @@ export default function Hero() {
       style={{ height: `${HERO_RUNWAY_VH * 100}vh` }}
     >
       <div className="hero-stage">
-        <div className="container">
+        {/* 🌟 NEW: The dynamic shadow overlay matching the rest of the page */}
+        <motion.div
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            opacity: abyssDarkness,
+            // Uses the exact same gradient from your .section::before rules
+            background: "rgba(10, 10, 12, 0.75)",
+            zIndex: 0,
+          }}
+        />
+
+        <div className="container" style={{ position: "relative", zIndex: 1 }}>
           <motion.div className="hero-copy" style={{ opacity, y }}>
             <p className="label">00 / Initialize</p>
             <h1 className="hero-name">
@@ -36,7 +52,7 @@ export default function Hero() {
               that makes it think.
             </p>
             <a href="#projects" className="btn btn-primary">
-              Descend ↓
+              Descend
             </a>
           </motion.div>
         </div>

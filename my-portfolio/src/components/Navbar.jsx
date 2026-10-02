@@ -3,8 +3,9 @@ import { motion, useScroll, useMotionValueEvent } from "motion/react";
 
 const links = [
   { href: "#about", label: "About", n: "01" },
-  { href: "#projects", label: "Projects", n: "02" },
-  { href: "#contact", label: "Contact", n: "03" },
+  { href: "#experience", label: "Logs", n: "02" },
+  { href: "#projects", label: "Projects", n: "03" },
+  { href: "#contact", label: "Contact", n: "04" },
 ];
 
 export default function Navbar() {

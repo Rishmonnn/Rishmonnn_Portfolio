@@ -1,20 +1,18 @@
 /* ================= TOKENS ================= */
+/* ================= TOKENS ================= */
 :root {
   --void: #0a0a0c;
   --bone: #ece7df;
   --ember: #ff4b1f;
   --muted: #8a8f98;
   --line: rgba(236, 231, 223, 0.12);
-
   --font-gothic: "Pirata One", "UnifrakturCook", serif;
   --font-display: "Archivo", "Inter Tight", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", monospace;
-
   --nav-height: 64px;
-  --pattern-size: 500px; /* size of one pattern tile */
-  --pattern-dim: 0; /* 0 = pattern at full strength, 1 = invisible */
+  --pattern-size: 500px;
+  --pattern-dim: 0;
 }
-
 /* ================= BASE ================= */
 *,
 *::before,

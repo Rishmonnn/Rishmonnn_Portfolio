@@ -1,7 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { HERO_RUNWAY_VH } from "../config";
 
 export default function BlackHoleControls({ settings, onChange }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Calculate total pixel height of the hero runway
+      const heroHeight = window.innerHeight * HERO_RUNWAY_VH;
+
+      // Hide HUD once the user scrolls past the hero stage
+      if (window.scrollY > heroHeight - window.innerHeight) {
+        setIsVisible(false);
+        setIsOpen(false); // Close drawer if it was open
+      } else {
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial position on load
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  if (!isVisible) return null;
 
   return (
     <div

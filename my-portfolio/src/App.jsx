@@ -8,6 +8,8 @@ import Projects from "./components/Projects";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import PatternBackground from "./components/PatternBackground";
+import Experience from "./components/Experience";
+import SysShell from "./components/SysShell";
 
 function ArchDefs() {
   return (
@@ -44,10 +46,12 @@ export default function App() {
       <PatternBackground />
       <BlackHole {...bhSettings} />
       <BlackHoleControls settings={bhSettings} onChange={handleSettingChange} />
+      <SysShell />
       <Navbar />
       <main>
         <Hero />
         <About />
+        <Experience />
         <Projects />
         <Contact />
       </main>

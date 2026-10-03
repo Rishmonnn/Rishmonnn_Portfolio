@@ -350,6 +350,99 @@ main,
   color: var(--ember);
 }
 
+/* ================= ABOUT ENHANCEMENTS ================= */
+.about-text {
+  position: relative;
+  padding-left: 2rem;
+}
+
+/* The vertical glowing trace next to your bio */
+.about-text::before {
+  content: "";
+  position: absolute;
+  top: 0.5rem;
+  bottom: 1.5rem;
+  left: 0;
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--ember) 0%,
+    color-mix(in srgb, var(--ember) 20%, transparent) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 10px rgba(255, 75, 31, 0.3);
+}
+
+/* Make the first paragraph stand out as an executive summary */
+.about-text p:first-of-type {
+  font-size: 1.3rem;
+  color: var(--bone);
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+/* HUD Panel for the Skills */
+.skills-panel {
+  background: rgba(10, 10, 12, 0.6);
+  border: 1px solid var(--line);
+  padding: 2rem;
+  border-top: 3px solid var(--ember);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+}
+
+.panel-title {
+  color: var(--ember);
+}
+
+.status-indicator {
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Blinking dot for the status indicator */
+.status-indicator::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: pulse-status 2s infinite ease-in-out;
+}
+
+@keyframes pulse-status {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Enhance the skill tags to look like hardware chips */
+.skill {
+  background: rgba(10, 10, 12, 0.9);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
 /* Rose window decoration */
 .rose-wrap {
   position: absolute;
@@ -377,6 +470,60 @@ main,
 }
 
 /* ================= PROJECTS ================= */
+
+/* Desktop layout: Side-by-side with sticky header */
+@media (min-width: 1024px) {
+  .projects-layout {
+    /* Swap the fixed 280px for a flexible fractional layout (approx 1/3 and 2/3) */
+    grid-template-columns: 1fr 2fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .projects-sticky-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 4rem);
+    z-index: 10;
+  }
+
+  /* Scale down the massive global heading specifically for this sidebar */
+  .projects-sticky-sidebar .section-title {
+    font-size: clamp(2rem, 5vw, 4.2rem);
+    hyphens: auto; /* Ensures long text breaks gracefully on smaller laptops */
+  }
+}
+
+/* Base mobile layout: stacks normally */
+.projects-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+.projects-scroll-content {
+  display: grid;
+  gap: 4rem;
+}
+
+/* Override the default card-stage padding so grid handles spacing */
+.projects-scroll-content .card-stage {
+  padding: 0;
+}
+
+/* Desktop layout: Side-by-side with sticky header */
+@media (min-width: 1024px) {
+  .projects-layout {
+    grid-template-columns: 280px 1fr;
+    gap: 5rem;
+    align-items: start; /* CRITICAL: Prevents the sidebar from stretching, allowing it to stick */
+  }
+
+  .projects-sticky-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 4rem);
+    z-index: 10;
+  }
+}
 .filters {
   display: flex;
   flex-wrap: wrap;
@@ -606,6 +753,156 @@ main,
 .reveal.visible {
   opacity: 1;
   transform: none;
+}
+
+/* ================= EXPERIENCE (GIT COMMIT LOG) ================= */
+.commit-log {
+  position: relative;
+  max-width: 800px;
+}
+
+/* Base mobile layout: stacks normally */
+.experience-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 3rem;
+}
+
+/* Desktop layout: Side-by-side with sticky header */
+@media (min-width: 1024px) {
+  .experience-layout {
+    grid-template-columns: 1fr 2fr; /* Matches the Projects section ratio */
+    gap: 4rem;
+    align-items: start; /* Prevents the sidebar from stretching */
+  }
+
+  .experience-sticky-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 4rem);
+    z-index: 10;
+  }
+
+  /* Scale down the heading to fit the sidebar */
+  .experience-sticky-sidebar .section-title {
+    font-size: clamp(2rem, 5vw, 4.2rem);
+    hyphens: auto;
+  }
+}
+
+/* The continuous vertical trace */
+.commit-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 11px; /* Centers exactly behind the 24px markers */
+  width: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--ember) 0%,
+    color-mix(in srgb, var(--ember) 20%, transparent) 15%,
+    var(--line) 100%
+  );
+  z-index: 0;
+}
+
+.commit-node {
+  position: relative;
+  padding-left: 4rem;
+  padding-bottom: 4.5rem;
+  z-index: 1;
+}
+
+.commit-node:last-child {
+  padding-bottom: 0;
+}
+
+.commit-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--void);
+  border: 2px solid var(--line);
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.3s,
+    transform 0.3s,
+    box-shadow 0.3s;
+}
+
+.commit-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition:
+    background 0.3s,
+    box-shadow 0.3s;
+}
+
+/* Hover effects to light up the node like an active system state */
+.commit-node:hover .commit-marker {
+  border-color: var(--ember);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 75, 31, 0.2);
+}
+
+.commit-node:hover .commit-dot {
+  background: var(--ember);
+  box-shadow: 0 0 10px rgba(255, 75, 31, 0.6);
+}
+
+.commit-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.commit-rev {
+  color: var(--ember);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+
+.commit-date {
+  color: var(--muted);
+}
+
+.commit-role {
+  font-size: 1.4rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  line-height: 1.1;
+  margin-bottom: 0.3rem;
+}
+
+.commit-company {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1.2rem;
+  letter-spacing: 0.05em;
+}
+
+.commit-desc {
+  font-size: 1.05rem;
+  color: #b9b5ad;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Base mobile layout adjustments */
+@media (max-width: 768px) {
+  .commit-node {
+    padding-left: 3rem;
+  }
 }
 
 /* ================= RESPONSIVE ================= */

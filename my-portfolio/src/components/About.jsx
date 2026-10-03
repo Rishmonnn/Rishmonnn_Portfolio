@@ -5,14 +5,14 @@ import designOne from "../assets/design-1.png";
 import designTwo from "../assets/design-2.png";
 
 const skills = [
-  "C / C++",
-  "Python",
-  "Verilog",
-  "Embedded Systems",
-  "Linux",
-  "React",
-  "Git",
-  "PCB Design",
+  "React.js / Vite",
+  "Python / Flask",
+  "C++ / Arduino",
+  "ESP32 Architecture",
+  "MySQL",
+  "HTML5 Canvas",
+  "Digital Logic (TTL)",
+  "Systems Architecture",
 ];
 
 export default function About() {
@@ -41,18 +41,33 @@ export default function About() {
         <div className="about-grid">
           <div className="about-text">
             <p>
-              Write two or three short paragraphs: who you are, what drew you to
-              computer engineering, and what you are looking for next.
+              I am a Computer Engineering undergraduate at PHINMA COC and the
+              Secretary of the CpE Student Body Organization. I specialize in
+              the intersection where high-level software architecture meets
+              low-level hardware control.
             </p>
             <p>
-              Mention the thing that connects your work, such as a love of
-              low-level systems or building things that sit between hardware and
-              software.
+              My work revolves around building systems that solve tangible
+              problems—from architecting AERIS, a full-stack student information
+              and AI-advising platform, to prototyping AquaReserve, an automated
+              ESP32-driven rainwater harvesting and UV-C sterilization system. I
+              don't just want to write code; I want to understand the physical
+              circuits and state-machine logic executing it.
+            </p>
+            <p>
+              Whether I am breadboarding 7400-series logic gates, theorycrafting
+              complex system mechanics and damage formulas, or pacing myself
+              through a 10-week half-marathon training block, my approach
+              remains the same: break the system down to its core components,
+              optimize the variables, and build it back up to run flawlessly.
             </p>
           </div>
 
-          <div>
-            <p className="label skills-label">Stack</p>
+          <div className="skills-panel">
+            <div className="panel-header">
+              <span className="panel-title">// CORE_MODULES</span>
+              <span className="status-indicator">ONLINE</span>
+            </div>
             <ul className="skills">
               {skills.map((skill) => (
                 <li key={skill} className="skill">

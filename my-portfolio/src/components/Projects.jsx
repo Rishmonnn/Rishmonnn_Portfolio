@@ -8,7 +8,6 @@ const categories = ["All", ...new Set(projects.map((p) => p.category))];
 
 export default function Projects() {
   const [active, setActive] = useState("All");
-
   const visible =
     active === "All"
       ? projects
@@ -26,7 +25,6 @@ export default function Projects() {
           opacity: 1,
         }}
       />
-
       <RoseWindow
         src={designThree}
         style={{
@@ -38,30 +36,33 @@ export default function Projects() {
         }}
       />
 
-      <div className="container">
-        <p className="label">02 / Projects</p>
-        <h2 className="section-title">
-          Selected <em>works</em>
-        </h2>
+      <div className="container projects-layout">
+        {/* STICKY SIDEBAR: Stays pinned on desktop */}
+        <div className="projects-sticky-sidebar">
+          <p className="label">03 / Projects</p>
+          <h2 className="section-title">
+            Selected <em>works</em>
+          </h2>
+          <div className="filters" role="group" aria-label="Filter projects">
+            {categories.map((category) => (
+              <button
+                key={category}
+                className={`filter-btn ${active === category ? "active" : ""}`}
+                onClick={() => setActive(category)}
+                aria-pressed={active === category}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
 
-        <div className="filters" role="group" aria-label="Filter projects">
-          {categories.map((category) => (
-            <button
-              key={category}
-              className={`filter-btn ${active === category ? "active" : ""}`}
-              onClick={() => setActive(category)}
-              aria-pressed={active === category}
-            >
-              {category}
-            </button>
+        {/* SCROLL CONTENT: Cards slide up beside the pinned sidebar */}
+        <div className="projects-scroll-content">
+          {visible.map((project, i) => (
+            <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
-      </div>
-
-      <div className="container">
-        {visible.map((project, i) => (
-          <ProjectCard key={project.id} project={project} index={i} />
-        ))}
       </div>
     </section>
   );

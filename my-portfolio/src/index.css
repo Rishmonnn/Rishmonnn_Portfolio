@@ -595,11 +595,22 @@ main,
 }
 
 /* Make the first paragraph stand out, but allow the glowing animation to show */
+/* Apply consistent spacing to all paragraphs */
+.about-text p {
+  margin-bottom: 1.5rem;
+}
+
+/* Remove the margin from the final paragraph so the bottom sits flush */
+.about-text p:last-child {
+  margin-bottom: 0;
+}
+
+/* Keep the first paragraph's unique font styling, but normalize its margin */
 .about-text p:first-of-type {
   font-size: 1.1rem;
   font-weight: 500;
   line-height: 1.5;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   color: transparent;
 }
 /* HUD Panel for the Skills */

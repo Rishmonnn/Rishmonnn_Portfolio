@@ -320,11 +320,58 @@ main,
   gap: 4rem;
   align-items: start;
 }
-.about-text p {
-  max-width: 52ch;
-  margin-bottom: 1.2rem;
-  font-size: 1.1rem;
-  color: #b9b5ad;
+.about-text {
+  /* Symmetrical Vertical Pulse: Blinding white core fading out equally on top and bottom */
+  background: linear-gradient(
+    180deg,
+    /* 180deg keeps the flow vertical (top to bottom) */ #b9b5ad 35%,
+    /* Normal text far above */ #990000 43%,
+    /* DARK: Crimson upper shadow */ var(--ember) 46.5%,
+    /* MID: Intense ember aura */ #ffeaad 48.5%,
+    /* LIGHT: Superheated amber flare */ #ffffff 49.5%,
+    /* EXTREME LIGHT: Start solid white core */ #ffffff 50.5%,
+    /* EXTREME LIGHT: End solid white core */ #ffeaad 51.5%,
+    /* LIGHT: Superheated amber flare */ var(--ember) 53.5%,
+    /* MID: Intense ember aura */ #990000 57%,
+    /* DARK: Crimson lower shadow */ #b9b5ad 65% /* Normal text far below */
+  );
+
+  /* 300% height gives the vertical band plenty of room to fall cleanly */
+  background-size: 100% 300%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  /* Uses your vertical drop animation */
+  animation: scanline-drop 10s linear infinite;
+}
+
+@keyframes scanline-drop {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+@keyframes scanline-drop {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 0% 100%;
+  }
+}
+
+/* Keyframes for the sweeping motion */
+@keyframes text-scan {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: -50% 50%;
+  }
 }
 .skills-label {
   margin-bottom: 1rem;
@@ -351,6 +398,180 @@ main,
 }
 
 /* ================= ABOUT ENHANCEMENTS ================= */
+
+/* ================= OPERATOR ID CARD ================= */
+.operator-id.landscape {
+  position: relative;
+  background: rgba(10, 10, 12, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  padding: 2.5rem 1.5rem 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  border-top: 4px solid var(--ember);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.id-punch-hole {
+  position: absolute;
+  top: 0.6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 45px;
+  height: 6px;
+  background: var(--void);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.id-main-content {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+.operator-id.landscape .id-photo-container {
+  width: 110px;
+  flex-shrink: 0;
+  aspect-ratio: 3 / 4;
+  border: 1px solid var(--line);
+  background: #111114;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Locks the container to a strict 1:1 square shape */
+.operator-id.landscape .id-photo-container {
+  width: 140px; /* Increased to make the photo wider and larger overall */
+  flex-shrink: 0;
+  align-self: flex-start; /* Prevents Flexbox from stretching it vertically */
+  aspect-ratio: 3 / 4; /* Restores the exact 3x4 shape */
+  border: 1px solid var(--line);
+  background: #111114;
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+/* Ensures the photo crops perfectly and displays in full color */
+.id-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* The grayscale filter has been removed so your photo appears in full color */
+}
+
+.crosshair-x {
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  background: rgba(236, 231, 223, 0.1);
+}
+.crosshair-y {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: rgba(236, 231, 223, 0.1);
+}
+
+.photo-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.2em;
+  z-index: 2;
+}
+
+.id-data-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.id-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 0.5rem;
+}
+
+.id-dept {
+  color: var(--muted);
+}
+.id-status {
+  color: #4ade80;
+}
+
+.id-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.id-data-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.id-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+}
+
+.id-value {
+  font-size: 0.9rem;
+  color: var(--bone);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ember-text {
+  color: var(--ember);
+}
+
+.id-footer-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.id-barcode {
+  flex: 1;
+  height: 24px;
+  background: repeating-linear-gradient(
+    to right,
+    var(--bone) 0,
+    var(--bone) 2px,
+    transparent 2px,
+    transparent 4px,
+    var(--bone) 4px,
+    var(--bone) 5px,
+    transparent 5px,
+    transparent 8px,
+    var(--bone) 8px,
+    var(--bone) 12px,
+    transparent 12px,
+    transparent 14px
+  );
+  opacity: 0.8;
+}
+
+.id-serial {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 .about-text {
   position: relative;
   padding-left: 2rem;
@@ -373,15 +594,14 @@ main,
   box-shadow: 0 0 10px rgba(255, 75, 31, 0.3);
 }
 
-/* Make the first paragraph stand out as an executive summary */
+/* Make the first paragraph stand out, but allow the glowing animation to show */
 .about-text p:first-of-type {
-  font-size: 1.3rem;
-  color: var(--bone);
+  font-size: 1.1rem;
   font-weight: 500;
   line-height: 1.5;
   margin-bottom: 2rem;
+  color: transparent;
 }
-
 /* HUD Panel for the Skills */
 .skills-panel {
   background: rgba(10, 10, 12, 0.6);

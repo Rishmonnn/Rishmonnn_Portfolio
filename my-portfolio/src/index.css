@@ -1210,3 +1210,483 @@ main,
     animation: rose-spin 160s linear infinite; /* Keeps the slow rotation */
   }
 }
+
+/* =====================================================================
+   ABOUT SECTION UPGRADE
+   Paste this whole block at the VERY BOTTOM of index.css.
+   It has to come last so it wins over the older About / ID-card rules.
+   ===================================================================== */
+
+/* ---------- shared helper: visible to screen readers only ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- About layout ----------
+   These used to be inline styles in About.jsx. Inline styles beat your
+   mobile media query, so the grid never collapsed to one column on phones. */
+.about-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+.about-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  height: 100%;
+}
+.about-right {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  height: 100%;
+}
+.skills-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+}
+
+/* =====================================================================
+   4. DECRYPT-IN BIO
+   ===================================================================== */
+/* Real text (invisible) and the scrambling text share one grid cell, so the
+   paragraph reserves its final height and nothing jumps while it decodes. */
+.decrypt {
+  display: grid;
+}
+.decrypt > span[aria-hidden="true"] {
+  grid-area: 1 / 1;
+}
+.decrypt-sizer {
+  visibility: hidden;
+}
+
+/* =====================================================================
+   2. LIVE TELEMETRY STRIP
+   ===================================================================== */
+.telemetry {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--ember);
+  background: rgba(10, 10, 12, 0.6);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+.telemetry .panel-header {
+  margin-bottom: 0;
+}
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.telemetry-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-left: 0.9rem;
+  border-left: 1px solid var(--line);
+}
+.telemetry-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+}
+.telemetry-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.telemetry-now {
+  padding-top: 1rem;
+  border-top: 1px dashed var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: #b9b5ad;
+}
+.telemetry-now-key {
+  margin-right: 0.6rem;
+  letter-spacing: 0.15em;
+  color: var(--ember);
+}
+.telemetry-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.3rem;
+  vertical-align: -0.12em;
+  background: var(--ember);
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* =====================================================================
+   1. INTERACTIVE ID CARD
+   ===================================================================== */
+.id-reveal {
+  width: 100%;
+}
+.id-scene {
+  perspective: 1400px; /* same depth cue as your project cards */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.id-tilt {
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.id-flip {
+  display: grid; /* front and back share one cell, so the card keeps one size */
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.id-face {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.id-back {
+  transform: rotateY(180deg);
+}
+.id-front {
+  user-select: none;
+}
+/* backdrop-filter breaks backface-visibility in Safari/Chrome, so the faces
+   use a nearly solid background instead of the old glass blur. */
+.operator-id.landscape.id-face {
+  backdrop-filter: none;
+  background: rgba(12, 12, 15, 0.94);
+}
+
+/* Small flip button in the top corner of each face */
+.id-flip-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.7rem;
+  z-index: 3;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.id-flip-btn:hover {
+  color: var(--ember);
+  border-color: var(--ember);
+}
+
+/* Photo overlay: your old crosshair classes had no parent rule, so give it one */
+.id-photo-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.crosshair-x {
+  top: 50%;
+  left: 0;
+}
+.crosshair-y {
+  top: 0;
+  left: 50%;
+}
+
+/* Scanner line: a full-height box whose bottom edge glows, sliding up and down */
+.id-scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 86%,
+    rgba(255, 75, 31, 0.28) 96%,
+    var(--ember) 100%
+  );
+  transform: translateY(-100%);
+  animation: id-scan 3.6s ease-in-out infinite;
+}
+@keyframes id-scan {
+  0% {
+    transform: translateY(-100%);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+}
+
+/* Holographic sheen (follows the cursor) + idle glint (sweeps on its own) */
+.id-holo,
+.id-glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.id-holo {
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.1) 42%,
+    rgba(255, 75, 31, 0.22) 47%,
+    rgba(255, 214, 150, 0.18) 50%,
+    rgba(90, 200, 255, 0.16) 54%,
+    rgba(160, 120, 255, 0.12) 58%,
+    transparent 65%
+  );
+  background-size: 300% 300%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.id-scene:hover .id-holo {
+  opacity: 1;
+}
+.id-glint {
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 58%
+  );
+  transform: translateX(-100%);
+  animation: id-glint 7s ease-in-out 1.5s infinite;
+  transition: opacity 0.3s;
+}
+.id-scene:hover .id-glint {
+  opacity: 0;
+}
+@keyframes id-glint {
+  0% {
+    transform: translateX(-100%);
+  }
+  18%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Back of the card */
+.id-channels {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1rem;
+}
+.id-channels li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.id-link {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--bone);
+  border-bottom: 1px solid var(--ember);
+  word-break: break-all;
+  transition: color 0.2s;
+}
+.id-link:hover {
+  color: var(--ember);
+}
+.id-back .id-barcode {
+  height: 32px;
+}
+
+/* =====================================================================
+   3. SKILLS AS AN ORBIT
+   ===================================================================== */
+.orbit-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+.orbit {
+  --orbit-size: 400px; /* make this smaller if the About section feels too tall */
+  position: relative;
+  width: min(100%, var(--orbit-size));
+  aspect-ratio: 1;
+}
+.orbit-core {
+  position: absolute;
+  inset: 42%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    #000 0 52%,
+    #ffd9a8 56%,
+    var(--ember) 66%,
+    rgba(255, 75, 31, 0) 100%
+  );
+  box-shadow: 0 0 40px 6px rgba(255, 75, 31, 0.35);
+}
+.orbit-ring {
+  position: absolute;
+  border: 1px dashed var(--line);
+  border-radius: 50%;
+  pointer-events: none; /* only the chips are hoverable, rings must not block each other */
+  animation: orbit-spin var(--dur, 40s) linear infinite;
+}
+.orbit-ring-0 {
+  inset: 33%;
+  border-color: color-mix(in srgb, var(--ember) 35%, transparent);
+}
+.orbit-ring-1 {
+  inset: 22%;
+}
+.orbit-ring-2 {
+  inset: 10%;
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.orbit-chip {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+/* Each chip spins the opposite way at the same speed as its ring, so the
+   label always stays upright. */
+.orbit-chip-inner {
+  pointer-events: auto;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: rgba(10, 10, 12, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  color: var(--bone);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  cursor: pointer;
+  animation: orbit-spin var(--dur, 40s) linear infinite reverse;
+  transition:
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+.orbit-chip-inner:hover,
+.orbit-chip-inner.is-active {
+  border-color: var(--ember);
+  color: var(--ember);
+  box-shadow: 0 0 14px rgba(255, 75, 31, 0.35);
+}
+/* Hovering or focusing a chip freezes its whole ring (ring and chips together) */
+.orbit-ring[data-paused="true"],
+.orbit-ring[data-paused="true"] .orbit-chip-inner {
+  animation-play-state: paused;
+}
+.orbit-readout {
+  width: 100%;
+  min-height: 6rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--ember);
+  background: rgba(10, 10, 12, 0.7);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.orbit-readout-name {
+  letter-spacing: 0.1em;
+  color: var(--ember);
+}
+.orbit-readout-note {
+  color: #b9b5ad;
+}
+
+/* The plain list is only for small screens */
+.skills-fallback {
+  display: none;
+}
+
+/* =====================================================================
+   RESPONSIVE (must stay after the desktop rules above)
+   ===================================================================== */
+@media (max-width: 900px) {
+  .orbit-wrap {
+    display: none;
+  }
+  .skills-fallback {
+    display: flex;
+  }
+}
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .about-left,
+  .about-right {
+    height: auto;
+  }
+  .telemetry {
+    padding: 1.25rem;
+  }
+}
+
+/* =====================================================================
+   REDUCED MOTION (keep this last)
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .id-scan,
+  .id-glint,
+  .telemetry-caret,
+  .orbit-ring,
+  .orbit-chip-inner {
+    animation: none;
+  }
+  .id-scan,
+  .id-glint {
+    display: none;
+  }
+
+  .about-text {
+    outline: 1px solid lime;
+  }
+  .decrypt {
+    outline: 1px solid cyan;
+  }
+  .decrypt-live {
+    outline: 1px solid yellow;
+  }
+}

@@ -11,13 +11,18 @@ const smoothstep = (a, b, v) => {
 };
 
 /* ---------- look & feel (tweak these) ---------- */
-const DISK_TILT = 1;
-const ARCH = 1;
-const DISK_ROTATION = -0.2;
-const DIRECTION = -1;
-const BEAMING = 0.75;
-const TRAIL = 0.07;
+const DISK_TILT = 0.4; // how open the disk is: 0 = edge-on, 1 = face-on. Lower = flatter
+const OPEN_ON_SCROLL = 0.8; // how much the disk opens up as you fall in (0 = stays the same)
+const ARCH = 1; // height of the lensed arch over the hole (1 = a full half-circle)
+const LENS_FALLOFF = 0.4; // how far out the arch reaches (higher = the arch reaches further)
+const DISK_ROTATION = -0.3; // radians: the slant. Negative = rises to the right
+const DISK_OUTER = 10; // how far the disk extends, in hole radii
+const DIRECTION = -1; // -1 = left side is the bright side, 1 = right
+const BEAMING = 0.75; // Doppler strength (0 = even, 1 = very lopsided)
+const TRAIL = 0.09; // streak length, in seconds of orbit
 const GLOW = 1;
+
+const INNER = 1.15; // inner edge of the disk, in hole radii
 
 const PALETTE = [
   "rgb(255, 244, 228)",
@@ -32,10 +37,15 @@ const TIER_ALPHA = [0.35, 0.55, 0.8, 1];
 const TIER_WIDTH = [0.7, 1.0, 1.4, 1.9];
 const tierOf = (e) => (e < 0.3 ? 0 : e < 0.55 ? 1 : e < 0.85 ? 2 : 3);
 
+/* ---------- particle factories ---------- */
+// lens: 1 at the inner edge, fading toward 0 further out.
+// It decides how strongly this gas gets bent into the arch.
+const lensOf = (r) => Math.exp(-(r - INNER) / LENS_FALLOFF);
+
 function makeDisk(count) {
   return Array.from({ length: count }, () => {
     const t = Math.pow(Math.random(), 1.6);
-    const r = 1.14 + t * 4;
+    const r = INNER + t * DISK_OUTER;
     const heat = Math.random() < 0.06 ? 0 : Math.min(4, 1 + Math.floor(t * 4));
     const band = 0.7 + 0.3 * Math.sin(r * 19);
     return {
@@ -44,21 +54,24 @@ function makeDisk(count) {
       omega: 2.2 / Math.pow(r, 1.5),
       heat,
       base: (0.35 + 0.65 * Math.random()) * band * (1.3 - 0.6 * t),
-      lift: (Math.random() - 0.5) * 0.08,
+      lift: (Math.random() - 0.5) * 0.05,
+      lens: lensOf(r),
     };
   });
 }
 
+// The faint lensed arc under the hole
 function makeUnder(count) {
   return Array.from({ length: count }, () => {
     const t = Math.pow(Math.random(), 1.8);
-    const r = 1.14 + t * 1.0;
+    const r = INNER + t * 0.9;
     return {
       r,
       a: Math.random() * Math.PI,
       omega: 2.2 / Math.pow(r, 1.5),
       heat: t < 0.35 ? 0 : t < 0.7 ? 1 : 2,
       base: 0.45 + 0.55 * Math.random(),
+      lens: lensOf(r),
     };
   });
 }
@@ -99,8 +112,9 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
     ).matches;
     const small = window.innerWidth < 768;
 
-    const disk = makeDisk(small ? 650 : 1700);
-    const under = makeUnder(small ? 150 : 380);
+    // Denser than before: a flatter disk needs more particles to look solid
+    const disk = makeDisk(small ? 800 : 2400);
+    const under = makeUnder(small ? 160 : 400);
     const dust = makeDust(small ? 40 : 90);
     const sparks = makeSparks(small ? 20 : 45);
 
@@ -137,7 +151,11 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
         R,
         cx: w * lerp(small ? 0.5 : 0.7, 0.5, progress) + mouse.x * R * 0.12,
         cy: h * lerp(small ? 0.3 : 0.5, 0.5, progress) + mouse.y * R * 0.08,
-        tilt: DISK_TILT,
+        // The disk opens a little as you fall in, and tilts with the mouse
+        tilt: Math.max(
+          0.08,
+          DISK_TILT * (1 + progress * OPEN_ON_SCROLL) + mouse.y * 0.03,
+        ),
         rot: DISK_ROTATION + mouse.x * 0.04,
       };
     }
@@ -179,11 +197,29 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
 
       let px = 0;
       let py = 0;
-      const place = (rad, ang, lift) => {
+
+      // How tall the arch is. Inner gas (lens near 1) bends up into a tall arch;
+      // outer gas (lens near 0) stays a flat sweep. The smoothstep rounds the
+      // join where the arch meets the sweep at the left and right tips.
+      const archK = (lens, sAbs) =>
+        tilt + (ARCH - tilt) * lens * smoothstep(0, 0.45, sAbs);
+
+      // Far half (above the hole) = lensed arch. Near half = flat sweep in front.
+      const place = (rad, ang, lift, lens) => {
         const s = Math.sin(ang);
-        const k = s < 0 ? ARCH : tilt;
+        const k = s < 0 ? archK(lens, -s) : tilt;
         const dx = Math.cos(ang) * rad;
         const dy = (s * k + lift) * rad;
+        px = cx + dx * cosR - dy * sinR;
+        py = cy + dx * sinR + dy * cosR;
+      };
+
+      // The arc under the hole: the SAME shape as the arch, mirrored downward,
+      // so its radius always matches the top
+      const placeUnder = (rad, ang, lens) => {
+        const s = Math.abs(Math.sin(ang));
+        const dx = Math.cos(ang) * rad;
+        const dy = s * archK(lens, s) * rad;
         px = cx + dx * cosR - dy * sinR;
         py = cy + dx * sinR + dy * cosR;
       };
@@ -229,12 +265,31 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
           const turbulence = Math.sin(p.a * 4 + p.r * 15) * 0.025 * R;
           const rad = p.r * R + turbulence;
 
-          place(rad, p.a, p.lift);
+          place(rad, p.a, p.lift, p.lens);
           path.moveTo(px, py);
-          place(rad, p.a - DIRECTION * p.omega * trail, p.lift);
+          place(rad, p.a - DIRECTION * p.omega * trail, p.lift, p.lens);
           path.lineTo(px, py);
         }
         flush(alpha);
+      };
+
+      const drawUnder = () => {
+        newPaths();
+        for (const p of under) {
+          const s = Math.sin(p.a); // 0 at the ends, 1 at the bottom
+          const c = DIRECTION * Math.cos(p.a);
+          // Fades toward the ends so the arc melts into the disk
+          const e = p.base * Math.pow(s, 0.6) * (1 + BEAMING * c) * 0.8;
+          if (e < 0.1) continue;
+          const ci = clamp(p.heat - (c > 0.45 ? 1 : 0), 0, 4);
+          const path = paths[ci * TIERS + tierOf(e)];
+          const rad = p.r * R;
+          placeUnder(rad, p.a, p.lens);
+          path.moveTo(px, py);
+          placeUnder(rad, p.a - DIRECTION * p.omega * trail, p.lens);
+          path.lineTo(px, py);
+        }
+        flush(alpha * 0.85);
       };
 
       const drawRing = () => {
@@ -263,6 +318,7 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
         }
       };
 
+      /* ---- 1) ambient glows behind everything ---- */
       ctx.globalCompositeOperation = "lighter";
 
       const nebula = ctx.createRadialGradient(cx, cy, R * 2, cx, cy, R * 14);
@@ -287,8 +343,10 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
       ctx.fillStyle = inner;
       ctx.fillRect(cx - R * 2.4, cy - R * 2.4, R * 4.8, R * 4.8);
 
+      /* ---- 2) far side: the lensed arch over the top ---- */
       drawDisk(true);
 
+      /* ---- 3) the event horizon ---- */
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = alpha;
 
@@ -302,8 +360,10 @@ export default function BlackHole({ speed = 1, glow = 1, trailFactor = 1 }) {
       ctx.arc(cx, cy, R, 0, TAU);
       ctx.fill();
 
+      /* ---- 4) photon ring, lower arc, near sweep (in front) ---- */
       ctx.globalCompositeOperation = "lighter";
       drawRing();
+      drawUnder();
       drawDisk(false);
 
       ctx.globalCompositeOperation = "source-over";
